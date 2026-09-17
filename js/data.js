@@ -171,13 +171,15 @@ function genNumberOrder(forcedType) {
         return { type, seq: [n - 1, null, n + 1], ans: n, opts: _numOpts(n, vis) };
     }
     if (type === 'ascending') {
-        const start = randInt(1, 11);
-        const order = [start, start + 1, start + 2, start + 3];
+        const step  = pick([2, 3, 5, 10]);
+        const start = randInt(1, 30);
+        const order = [start, start + step, start + step * 2, start + step * 3];
         return { type, order, nums: shuffle([...order]) };
     }
     // descending
-    const start = randInt(5, 14);
-    const order = [start, start - 1, start - 2, start - 3];
+    const step  = pick([2, 3, 5, 10]);
+    const start = randInt(10, 50);
+    const order = [start, start - step, start - step * 2, start - step * 3];
     return { type, order, nums: shuffle([...order]) };
 }
 
