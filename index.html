@@ -70,6 +70,12 @@
                 <span class="card-desc">Before, after &amp; middle!</span>
                 <span class="card-best" id="best-numberorder">Best: —</span>
             </button>
+            <button class="game-card game-card--spatial" data-game="spatial">
+                <span class="card-icon">🧩</span>
+                <span class="card-title">Space &amp; Shape</span>
+                <span class="card-desc">Position, move &amp; complete!</span>
+                <span class="card-best" id="best-spatial">Best: —</span>
+            </button>
         </div>
     </div>
 </div>
@@ -242,6 +248,31 @@
     </div>
 </div>
 
+<!-- ── SPATIAL REASONING ── -->
+<div id="spatial-screen" class="screen">
+    <div class="card">
+        <div class="game-header">
+            <button class="back-btn" onclick="goHome()">← Home</button>
+            <span class="game-title" id="sp-title">🧩 Space &amp; Shape</span>
+            <div class="score-pill">⭐ <span id="sp-score">0</span></div>
+        </div>
+        <div class="prog-wrap"><div class="prog-fill" id="sp-prog"></div></div>
+        <div class="q-counter" id="sp-qcount"></div>
+
+        <!-- type badge: position / move / complete -->
+        <div class="sp-type-bar" id="sp-type-bar"></div>
+
+        <!-- the visual grid or scene -->
+        <div class="sp-scene" id="sp-scene"></div>
+
+        <!-- question label -->
+        <div class="sp-question" id="sp-question"></div>
+
+        <!-- answer choices -->
+        <div class="sp-answer-row" id="sp-answer-row"></div>
+    </div>
+</div>
+
 <!-- ── RESULT ── -->
 <div id="result-screen" class="screen">
     <div class="card">
@@ -267,6 +298,7 @@
 <script src="js/games.js"></script>
 <script src="js/trivia.js"></script>
 <script src="js/agent.js"></script>
+<script src="js/spatial.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

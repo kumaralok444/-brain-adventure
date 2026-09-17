@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (game === 'math')     Games.startMath();
             else if (game === 'trivia')       Trivia.startTrivia();
             else if (game === 'numberorder') Games.startNumberOrder();
+            else if (game === 'spatial')     Spatial.start();
         });
     });
 
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (g === 'math')         Games.startMath();
         else if (g === 'trivia')       Trivia.startTrivia();
         else if (g === 'numberorder') Games.startNumberOrder();
+        else if (g === 'spatial')     Spatial.start();
     });
 
     // close modals on overlay click

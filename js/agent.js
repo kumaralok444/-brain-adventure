@@ -45,6 +45,11 @@ const GameAgent = (() => {
             sports:  { emoji: '⚽', label: 'Sports'  },
             nature:  { emoji: '🌈', label: 'Nature'  },
         },
+        spatial: {
+            position: { emoji: '📍', label: 'Position'  },
+            move:     { emoji: '➡️', label: 'Move'      },
+            complete: { emoji: '🧩', label: 'Complete'  },
+        },
         numberorder: {
             before:     { emoji: '⬅️', label: 'BEFORE'     },
             after:      { emoji: '➡️', label: 'AFTER'      },
@@ -61,6 +66,7 @@ const GameAgent = (() => {
         sequence:    '🔢 What\'s Next?',
         math:        '➕ Maths Practice',
         memory:      '🧠 Memory Match',
+        spatial:     '🧩 Space & Shape',
         numberorder: '🔢 Number Order',
     };
 

@@ -52,7 +52,7 @@ const MEM_POOLS = {
     nature:   ['🌈','🌸','🌻','🍀','🌊','🏔️','🌋','🍄','🌴','🌺','❄️','🦄'],
 };
 const AVATARS     = ['🦄','🐯','🐼','🦁','🦊','🐸','🐙','🦋','🐬','🦖'];
-const GAME_NAMES  = { patterns:'🎨 Patterns', memory:'🧠 Memory', oddone:'🔍 Odd One Out', sequence:'🔢 Sequence', trivia:'🌍 Live Trivia', math:'➕ Maths', numberorder:'🔢 Number Order' };
+const GAME_NAMES  = { patterns:'🎨 Patterns', memory:'🧠 Memory', oddone:'🔍 Odd One Out', sequence:'🔢 Sequence', trivia:'🌍 Live Trivia', math:'➕ Maths', numberorder:'🔢 Number Order', spatial:'🧩 Space & Shape' };
 
 // ─── Question generators ──────────────────────────────────────────────────────
 
