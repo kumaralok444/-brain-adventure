@@ -156,29 +156,29 @@ function genNumberOrder(forcedType) {
     const type = forcedType || pick(['before','before','after','after','middle','ascending','descending']);
 
     if (type === 'before') {
-        const n   = randInt(3, 15);
-        const vis = [n, n + 1];           // numbers visible in question
+        const n   = randInt(3, 98);  // n+1 shown in question, must stay ≤ 99
+        const vis = [n, n + 1];
         return { type, seq: [null, n, n + 1], ans: n - 1, opts: _numOpts(n - 1, vis) };
     }
     if (type === 'after') {
-        const n   = randInt(2, 14);
+        const n   = randInt(2, 98);
         const vis = [n - 1, n];
         return { type, seq: [n - 1, n, null], ans: n + 1, opts: _numOpts(n + 1, vis) };
     }
     if (type === 'middle') {
-        const n   = randInt(2, 14);
+        const n   = randInt(2, 98);
         const vis = [n - 1, n + 1];
         return { type, seq: [n - 1, null, n + 1], ans: n, opts: _numOpts(n, vis) };
     }
     if (type === 'ascending') {
         const step  = pick([2, 3, 5, 10]);
-        const start = randInt(1, 30);
+        const start = randInt(1, 99 - step * 3);   // ensure max number stays ≤ 99
         const order = [start, start + step, start + step * 2, start + step * 3];
         return { type, order, nums: shuffle([...order]) };
     }
-    // descending
+    // descending — start high enough so last number stays ≥ 1
     const step  = pick([2, 3, 5, 10]);
-    const start = randInt(10, 50);
+    const start = randInt(step * 3 + 1, 99);       // ensures start - step*3 ≥ 1
     const order = [start, start - step, start - step * 2, start - step * 3];
     return { type, order, nums: shuffle([...order]) };
 }
@@ -187,7 +187,7 @@ function _numOpts(ans, exclude = []) {
     const wrongs = new Set();
     for (const d of shuffle([-3, -2, -1, 1, 2, 3, -4, 4, -5, 5])) {
         const w = ans + d;
-        if (w >= 1 && w !== ans && !exclude.includes(w)) wrongs.add(w);
+        if (w >= 1 && w <= 99 && w !== ans && !exclude.includes(w)) wrongs.add(w);
         if (wrongs.size >= 3) break;
     }
     return shuffle([ans, ...[...wrongs]]);
