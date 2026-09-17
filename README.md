@@ -10,9 +10,9 @@ No installation. No login. No server. Just open `index.html` in any browser and 
 
 ## 📸 Screenshots
 
-| Home Screen | Pattern Play | Maths Practice |
-|:-----------:|:------------:|:--------------:|
-| Pick from 6 games | Complete emoji patterns | Addition, subtraction & times tables |
+| Home Screen | Pattern Play | Number Order |
+|:-----------:|:------------:|:------------:|
+| Pick from 7 games | Complete emoji patterns | Before, after, middle & ordering |
 
 ---
 
@@ -24,6 +24,7 @@ Children are shown a repeating emoji sequence with the last item hidden as `❓`
 - Patterns are **algorithmically generated** every session — no two games are the same
 - Uses 4 themed emoji pools: animals, food, nature, colours
 - Pattern templates include AB, AABB, ABB, AAB, and ABC sequences
+- **Distractors include emojis already in the pattern** — no easy elimination by spotting the unfamiliar one
 - Builds: **pattern recognition**, **logical prediction**, **visual reasoning**
 
 ---
@@ -31,6 +32,7 @@ Children are shown a repeating emoji sequence with the last item hidden as `❓`
 ### 🧠 Memory Match
 A classic card-flip memory game with 16 cards (8 matching emoji pairs).
 
+- **5 themed emoji pools** — animals, space, food, sports, nature — agent picks the best theme each session
 - Cards are shuffled randomly every game
 - Tracks **number of moves** and **time taken**
 - Personal best is saved (fewest moves wins)
@@ -53,6 +55,7 @@ Children are shown a sequence of numbers or emojis and must identify what comes 
 
 - **55% number sequences** (count by 1s, 2s, 5s, 10s, descending, odd numbers) — all generated dynamically
 - **45% emoji sequences** (moon phases, rainbow colours, growth stages, time of day, etc.)
+- Wrong options never include numbers/emojis already visible in the sequence
 - Builds: **number sense**, **sequential reasoning**, **pattern logic**
 
 ---
@@ -64,8 +67,25 @@ Fresh arithmetic questions every session, appropriate for ages 5–7.
 - **Subtraction** — e.g. `9 − 4 = ?` (always positive answers)
 - **×2 tables** — e.g. `5 × 2 = ?`
 - **×3 tables** — e.g. `4 × 3 = ?`
-- Wrong answer choices are plausible but clearly distinct
 - Builds: **arithmetic fluency**, **number bonds**, **multiplication foundations**
+
+---
+
+### 🔢 Number Order *(new)*
+Fully visual number game — no reading required. Three question types for before/after/middle, plus two ordering modes.
+
+**Fill the gap** (before / after / middle):
+- A row of colourful number bubbles with one pulsing gold `?` bubble
+- Child taps the correct answer balloon; the answer pops into the gap
+
+**Ordering** (ascending / descending):
+- Four shuffled colourful number bubbles at the bottom
+- Empty slots at the top labelled **🚀 ASCENDING · 1→2→3→4** or **🎢 DESCENDING · 4→3→2→1**
+- Child taps bubbles one by one in the correct order — each correct tap flies into the next slot
+- Wrong tap shakes but stays in place so she can try again
+- Vocabulary (ASCENDING / DESCENDING) appears on the game title, hint bar, and direction pill every round so the words are learned through repetition
+
+Builds: **number ordering**, **sequencing**, **mathematical vocabulary**
 
 ---
 
@@ -79,6 +99,38 @@ Powered by the free **Open Trivia DB API** — fetches 10 brand-new questions ev
 
 ---
 
+## 🤖 Offline Practice Agent
+
+Every game is powered by a lightweight **offline agent** (`js/agent.js`) that runs entirely in the browser — no server, no API.
+
+**How it works:**
+1. On every session start the agent reads per-subtype accuracy from `localStorage`
+2. It assigns weights — weak subtypes get more reps, mastered ones stay fresh with fewer
+3. Builds a fresh 10-question plan tailored to today's weak spots
+4. Shows a **3 → 2 → 1 → 🎮 countdown splash** with the game name and focus badges before each session
+
+**Accuracy weighting:**
+
+| Accuracy | Weight | Meaning |
+|----------|--------|---------|
+| Never tried | 3 | Fair start |
+| < 50% | 5 | Needs most practice |
+| 50–79% | 3 | Still working on it |
+| ≥ 80% | 1 | Mastered — keep fresh |
+
+**What each game tracks:**
+
+| Game | Subtypes tracked |
+|------|-----------------|
+| Pattern Play | Animals, Food, Nature, Colours |
+| Odd One Out | Animals, Fruits, Vehicles, Flowers, Sports, Music, Sweets, Nature |
+| What's Next? | Numbers, Emoji |
+| Maths Practice | Add, Subtract, ×2, ×3 |
+| Memory Match | Animals, Space, Food, Sports, Nature |
+| Number Order | Before, After, Middle, Ascending, Descending |
+
+---
+
 ## ✨ Features
 
 | Feature | Details |
@@ -89,6 +141,7 @@ Powered by the free **Open Trivia DB API** — fetches 10 brand-new questions ev
 | 🔥 **Daily Streak** | Tracks consecutive days played — shown as a fire banner |
 | 📊 **Stats Screen** | Games played, average score, perfect games, total XP, recent history |
 | 🕒 **Play History** | Last 50 games stored with score, XP earned, and timestamp |
+| 🤖 **Practice Agent** | Adaptive per-subtype question planner — gets smarter each session |
 | 🎉 **Confetti** | Fires on high scores and game completions |
 | 🔊 **Sound Effects** | Ascending chime for correct, descending tone for wrong (Web Audio API) |
 | ⏱ **Memory Timer** | Live timer in the Memory Match game |
@@ -105,10 +158,11 @@ brain-adventure/
 ├── css/
 │   └── app.css         # All styles, animations, responsive layout
 └── js/
-    ├── data.js         # Emoji pools + all question generators (genPattern, genOdd, genSequence, genMath)
-    ├── store.js        # Persistence layer — reads/writes JSON to localStorage
+    ├── data.js         # Emoji pools + all question generators
+    ├── store.js        # Persistence — reads/writes JSON to localStorage
     ├── ui.js           # Rendering helpers, modals, confetti, sound, result screen
-    ├── games.js        # Game engines: Patterns, Odd One Out, Sequence, Memory, Maths
+    ├── games.js        # Game engines for all 7 games
+    ├── agent.js        # Offline practice agent — adaptive question planner
     ├── trivia.js       # Live Trivia engine — fetches from Open Trivia DB API
     └── app.js          # Bootstrap, event wiring, screen routing
 ```
@@ -123,31 +177,24 @@ The JSON schema stored under key `brain_adventure_v1`:
 
 ```json
 {
-  "profile": {
-    "name": "Aria",
-    "avatar": "🦄",
-    "xp": 420,
-    "createdAt": 1725000000000
-  },
+  "profile": { "name": "Aria", "avatar": "🦄", "xp": 420 },
   "bests": {
-    "patterns":  { "score": 10, "total": 10, "pct": 100 },
-    "memory":    { "moves": 12, "time": 45 },
-    "oddone":    { "score": 9,  "total": 10, "pct": 90  },
-    "sequence":  { "score": 8,  "total": 10, "pct": 80  },
-    "math":      { "score": 10, "total": 10, "pct": 100 },
-    "trivia":    { "score": 7,  "total": 10, "pct": 70  }
+    "patterns":    { "score": 10, "total": 10, "pct": 100 },
+    "memory":      { "moves": 12, "time": 45 },
+    "numberorder": { "score": 9,  "total": 10, "pct": 90 }
   },
   "history": [
     { "game": "math", "score": 8, "total": 10, "pct": 80, "xp": 80, "ts": 1725001000000 }
   ],
-  "streaks": {
-    "lastPlayedDate": "Thu Sep 11 2026",
-    "count": 3
+  "streaks": { "lastPlayedDate": "Thu Sep 17 2026", "count": 3 },
+  "agentStats": {
+    "patterns":    { "animals": { "correct": 8, "total": 10 } },
+    "numberorder": { "ascending": { "correct": 3, "total": 8 } }
   }
 }
 ```
 
-Storage footprint is under **5 KB** even after 50 games of history.
+Storage footprint is under **6 KB** even after 50 games of history.
 
 ---
 
@@ -181,7 +228,7 @@ open index.html        # macOS
 |-----------|-------|
 | **HTML5** | Semantic markup, single-page app structure |
 | **CSS3** | Flexbox, Grid, CSS variables, keyframe animations, 3D card flip |
-| **Vanilla JavaScript (ES6+)** | Modules pattern (IIFE), async/await, localStorage API, Web Audio API |
+| **Vanilla JavaScript (ES6+)** | IIFE modules, async/await, localStorage API, Web Audio API |
 | **Open Trivia DB** | Free REST API for live trivia questions |
 | **GitHub Pages** | Free static hosting |
 
@@ -199,10 +246,11 @@ Each game targets a specific cognitive skill area aligned with early childhood d
 | Working memory | Memory Match |
 | Logical categorisation | Odd One Out |
 | Number sense & arithmetic | Maths Practice, What's Next? |
+| Number ordering & vocabulary | Number Order |
 | General knowledge | Live Trivia |
-| Sequential reasoning | What's Next?, Pattern Play |
+| Sequential reasoning | What's Next?, Pattern Play, Number Order |
 
-The XP and streak systems provide **positive reinforcement** without competitive pressure, encouraging children to return and improve at their own pace.
+The XP and streak systems provide **positive reinforcement** without competitive pressure, encouraging children to return and improve at their own pace. The offline agent ensures every session focuses on what the child actually needs to practise — not just random repetition.
 
 ---
 
