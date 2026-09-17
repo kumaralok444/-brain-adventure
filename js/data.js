@@ -31,52 +31,71 @@ const ODD_POOLS = [
     { name: 'nature',   items: ['🌊','🏔️','🌋','🏜️','🌿','🍀','🌲','🌴','🌾','🍄'] },
 ];
 
-// Static emoji sequences (mixed with generated number ones)
+// Static emoji sequences — wrong options must NOT include any emoji already visible in seq
 const EMOJI_SEQS = [
-    { seq: ['🌑','🌒','🌓','🌔','❓'],  ans: '🌕',  opts: ['🌕','🌑','🌒','🌗'] },
-    { seq: ['🔴','🟠','🟡','🟢','❓'],  ans: '🔵',  opts: ['🔵','🔴','🟣','🟤'] },
-    { seq: ['🌱','🌿','🌳','❓'],        ans: '🌲',  opts: ['🌲','🌱','🍂','🌵'] },
-    { seq: ['🐭','🐱','🐕','🦁','❓'],  ans: '🐘',  opts: ['🐘','🐭','🐠','🐦'] },
-    { seq: ['🌅','☀️','🌆','❓'],        ans: '🌙',  opts: ['🌙','☀️','🌅','⭐'] },
-    { seq: ['😊','😄','😁','❓'],        ans: '😆',  opts: ['😆','😢','😊','😐'] },
-    { seq: ['🐣','🐥','🐔','❓'],        ans: '🥚',  opts: ['🥚','🐥','🦆','🐦'] },
-    { seq: ['🌧️','🌤️','☀️','🌤️','❓'],ans: '🌧️', opts: ['🌧️','⛈️','❄️','☀️'] },
+    { seq: ['🌑','🌒','🌓','🌔','❓'],  ans: '🌕',  opts: ['🌕','🌗','⭐','☀️']  },
+    { seq: ['🔴','🟠','🟡','🟢','❓'],  ans: '🔵',  opts: ['🔵','🟣','🟤','⚫']  },
+    { seq: ['🌱','🌿','🌳','❓'],        ans: '🌲',  opts: ['🌲','🍂','🌵','🌾']  },
+    { seq: ['🐭','🐱','🐕','🦁','❓'],  ans: '🐘',  opts: ['🐘','🦒','🦏','🐊']  },
+    { seq: ['🌅','☀️','🌆','❓'],        ans: '🌙',  opts: ['🌙','⭐','🌟','💫']  },
+    { seq: ['😊','😄','😁','❓'],        ans: '😆',  opts: ['😆','😂','🤣','😝']  },
+    { seq: ['🐣','🐥','🐔','❓'],        ans: '🥚',  opts: ['🥚','🦆','🐦','🦅']  },
+    { seq: ['🌧️','🌤️','☀️','🌤️','❓'],ans: '🌧️', opts: ['🌧️','⛈️','❄️','🌪️'] },
 ];
 
-const MEM_EMOJIS  = ['🦊','🐼','🦋','🌈','🎸','🚀','🍦','🎯'];
+// Memory emoji pools grouped by theme — agent picks a theme each session
+const MEM_POOLS = {
+    animals:  ['🦊','🐼','🐯','🦁','🐸','🐙','🦋','🐬','🦖','🐧','🦒','🐘'],
+    space:    ['🚀','🌙','⭐','🪐','☄️','🌍','🛸','🌟','🌠','💫','🔭','🌌'],
+    food:     ['🍦','🍕','🍩','🌮','🍓','🍔','🧁','🍭','🍋','🍇','🍜','🥑'],
+    sports:   ['⚽','🏀','🎾','🏈','🎯','🏓','🥊','🎸','🎺','🎻','🏆','🎮'],
+    nature:   ['🌈','🌸','🌻','🍀','🌊','🏔️','🌋','🍄','🌴','🌺','❄️','🦄'],
+};
 const AVATARS     = ['🦄','🐯','🐼','🦁','🦊','🐸','🐙','🦋','🐬','🦖'];
-const GAME_NAMES  = { patterns:'🎨 Patterns', memory:'🧠 Memory', oddone:'🔍 Odd One Out', sequence:'🔢 Sequence', trivia:'🌍 Live Trivia', math:'➕ Maths' };
+const GAME_NAMES  = { patterns:'🎨 Patterns', memory:'🧠 Memory', oddone:'🔍 Odd One Out', sequence:'🔢 Sequence', trivia:'🌍 Live Trivia', math:'➕ Maths', numberorder:'🔢 Number Order' };
 
 // ─── Question generators ──────────────────────────────────────────────────────
 
-function genPattern() {
-    const poolKey = pick(Object.keys(PATTERN_POOLS));
+function genPattern(forcedPool) {
+    const poolKey = forcedPool || pick(Object.keys(PATTERN_POOLS));
     const pool    = shuffle(PATTERN_POOLS[poolKey]);
     const [A, B, C] = pool;
 
-    // Each entry: seq shown (without ❓), ans = next item
     const templates = [
-        { seq: [A,B,A,B],      ans: A },  // AB AB → A
-        { seq: [A,A,B,B,A,A],  ans: B },  // AABB AA → B
-        { seq: [A,B,B,A,B],    ans: B },  // ABB AB → B
-        { seq: [A,A,B,A,A],    ans: B },  // AAB AA → B
-        { seq: [A,B,C,A,B],    ans: C },  // ABC AB → C
+        { seq: [A,B,A,B],      ans: A },
+        { seq: [A,A,B,B,A,A],  ans: B },
+        { seq: [A,B,B,A,B],    ans: B },
+        { seq: [A,A,B,A,A],    ans: B },
+        { seq: [A,B,C,A,B],    ans: C },
     ];
 
-    const t       = pick(templates);
-    const wrongs  = pool.slice(3, 6);          // 3 items not used in pattern
-    const opts    = shuffle([t.ans, ...wrongs]).slice(0, 4);
+    const t = pick(templates);
 
-    // make sure correct answer is in opts
-    if (!opts.includes(t.ans)) opts[0] = t.ans;
+    // distractors: emojis already in the pattern (excluding the answer) come first
+    // so all 4 options look like they could belong — no easy elimination
+    const inPattern  = [...new Set(t.seq)].filter(e => e !== t.ans);
+    const extraPool  = pool.slice(3).filter(e => e !== t.ans && !inPattern.includes(e));
+    const distractors = shuffle([...inPattern, ...extraPool]).slice(0, 3);
 
-    return { seq: [...t.seq, '❓'], ans: t.ans, opts };
+    // ensure exactly 3 distractors (pad from pool if somehow short)
+    while (distractors.length < 3) {
+        const filler = pool.find(e => e !== t.ans && !distractors.includes(e));
+        if (filler) distractors.push(filler); else break;
+    }
+
+    const opts = shuffle([t.ans, ...distractors]);
+
+    return { seq: [...t.seq, '❓'], ans: t.ans, opts, subtype: poolKey };
 }
 
-function genOdd() {
+function genOdd(forcedCat) {
     const idx     = shuffle([...Array(ODD_POOLS.length).keys()]);
-    const mainCat = ODD_POOLS[idx[0]];
-    const oddCat  = ODD_POOLS[idx[1]];
+    const mainCat = forcedCat
+        ? ODD_POOLS.find(p => p.name === forcedCat) || ODD_POOLS[idx[0]]
+        : ODD_POOLS[idx[0]];
+    // odd item comes from a different category
+    const oddPool = ODD_POOLS.filter(p => p.name !== mainCat.name);
+    const oddCat  = pick(oddPool);
 
     const mainItems = shuffle([...mainCat.items]).slice(0, 3);
     const oddItem   = shuffle([...oddCat.items])[0];
@@ -84,16 +103,17 @@ function genOdd() {
     const items = shuffle([...mainItems, oddItem]);
     const odd   = items.indexOf(oddItem);
 
-    return { items, odd };
+    return { items, odd, subtype: mainCat.name };
 }
 
-function genSequence() {
-    // 55% number sequence, 45% emoji sequence
-    return Math.random() < 0.55 ? _genNumSeq() : pick(EMOJI_SEQS);
+function genSequence(forcedType) {
+    if (forcedType === 'numbers') return _genNumSeq();
+    if (forcedType === 'emoji')   return { ...pick(EMOJI_SEQS), subtype: 'emoji' };
+    return Math.random() < 0.55 ? _genNumSeq() : { ...pick(EMOJI_SEQS), subtype: 'emoji' };
 }
 
-function _genNumSeq() {
-    const type = pick(['step1','step2','step5','step10','desc','odds']);
+function _genNumSeq(forcedStep) {
+    const type = forcedStep || pick(['step1','step2','step5','step10','desc','odds']);
     let start, step, count = 4;
 
     switch (type) {
@@ -113,18 +133,66 @@ function _genNumSeq() {
 
     const absStep = Math.max(1, Math.abs(step));
     const wrongs  = shuffle([-2,-1,1,2,-3,3].map(d => ans + d * absStep))
-        .filter(n => n !== ans && n > 0)
+        .filter(n => n !== ans && n > 0 && !nums.includes(n))
         .slice(0, 3);
 
-    // pad if not enough wrongs
-    while (wrongs.length < 3) wrongs.push(ans + wrongs.length + 1);
+    // pad with numbers outside the sequence if not enough wrongs
+    for (let d = 4; wrongs.length < 3; d++) {
+        const w = ans + d * absStep;
+        if (w > 0 && !nums.includes(w) && !wrongs.includes(w)) wrongs.push(w);
+    }
 
     const opts = shuffle([String(ans), ...wrongs.map(String)]);
-    return { seq: [...nums.map(String), '❓'], ans: String(ans), opts };
+    return { seq: [...nums.map(String), '❓'], ans: String(ans), opts, subtype: 'numbers' };
 }
 
-function genMath() {
-    const type = pick(['add','add','add','sub','mul2','mul3']);
+function genMemoryPool(forcedTheme) {
+    const theme = forcedTheme || pick(Object.keys(MEM_POOLS));
+    const pool  = shuffle([...MEM_POOLS[theme]]).slice(0, 8);
+    return { theme, emojis: pool };
+}
+
+function genNumberOrder(forcedType) {
+    const type = forcedType || pick(['before','before','after','after','middle','ascending','descending']);
+
+    if (type === 'before') {
+        const n   = randInt(3, 15);
+        const vis = [n, n + 1];           // numbers visible in question
+        return { type, seq: [null, n, n + 1], ans: n - 1, opts: _numOpts(n - 1, vis) };
+    }
+    if (type === 'after') {
+        const n   = randInt(2, 14);
+        const vis = [n - 1, n];
+        return { type, seq: [n - 1, n, null], ans: n + 1, opts: _numOpts(n + 1, vis) };
+    }
+    if (type === 'middle') {
+        const n   = randInt(2, 14);
+        const vis = [n - 1, n + 1];
+        return { type, seq: [n - 1, null, n + 1], ans: n, opts: _numOpts(n, vis) };
+    }
+    if (type === 'ascending') {
+        const start = randInt(1, 11);
+        const order = [start, start + 1, start + 2, start + 3];
+        return { type, order, nums: shuffle([...order]) };
+    }
+    // descending
+    const start = randInt(5, 14);
+    const order = [start, start - 1, start - 2, start - 3];
+    return { type, order, nums: shuffle([...order]) };
+}
+
+function _numOpts(ans, exclude = []) {
+    const wrongs = new Set();
+    for (const d of shuffle([-3, -2, -1, 1, 2, 3, -4, 4, -5, 5])) {
+        const w = ans + d;
+        if (w >= 1 && w !== ans && !exclude.includes(w)) wrongs.add(w);
+        if (wrongs.size >= 3) break;
+    }
+    return shuffle([ans, ...[...wrongs]]);
+}
+
+function genMath(forcedType) {
+    const type = forcedType || pick(['add','add','add','sub','mul2','mul3']);
     let question, ans;
 
     if (type === 'add') {
@@ -154,5 +222,5 @@ function genMath() {
     }
 
     const opts = shuffle([String(ans), ...[...wrongs].map(String)]);
-    return { question, ans: String(ans), opts };
+    return { question, ans: String(ans), opts, subtype: type };
 }

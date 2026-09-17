@@ -64,6 +64,12 @@
                 <span class="card-desc">Fresh questions every time!</span>
                 <span class="card-best" id="best-trivia">Best: —</span>
             </button>
+            <button class="game-card game-card--numorder" data-game="numberorder">
+                <span class="card-icon">🔢</span>
+                <span class="card-title">Number Order</span>
+                <span class="card-desc">Before, after &amp; middle!</span>
+                <span class="card-best" id="best-numberorder">Best: —</span>
+            </button>
         </div>
     </div>
 </div>
@@ -200,6 +206,42 @@
     </div>
 </div>
 
+<!-- ── AGENT COUNTDOWN (shared by all games) ── -->
+<div id="agent-countdown-screen" class="screen">
+    <div class="card agent-cd-card">
+        <div class="agent-cd-game" id="agent-cd-game"></div>
+        <div class="agent-cd-title">Get Ready! 🌟</div>
+        <div class="agent-cd-focus" id="agent-cd-focus"></div>
+        <div class="agent-cd-number" id="agent-cd-number">3</div>
+    </div>
+</div>
+
+<!-- ── NUMBER ORDER ── -->
+<div id="numberorder-screen" class="screen">
+    <div class="card">
+        <div class="game-header">
+            <button class="back-btn" onclick="goHome()">← Home</button>
+            <span class="game-title" id="no-title">🔢 Numbers</span>
+            <div class="score-pill">⭐ <span id="no-score">0</span></div>
+        </div>
+        <div class="prog-wrap"><div class="prog-fill" id="no-prog"></div></div>
+        <div class="q-counter" id="no-qcount"></div>
+
+        <!-- visual hint bar (emoji + big label) -->
+        <div class="no-hint-bar" id="no-hint-bar"></div>
+
+        <!-- ORDER mode: empty slots at top, shuffled bubbles to tap below -->
+        <div class="no-slots-row" id="no-slots-row" style="display:none"></div>
+        <div class="no-order-arrow" id="no-order-arrow" style="display:none"></div>
+
+        <!-- FILL mode (before/after/middle): bubbles with a gap -->
+        <div class="no-bubbles-row" id="no-bubbles-row"></div>
+
+        <!-- answer balloon buttons (fill mode) / tap bubbles (order mode) -->
+        <div class="no-answer-row" id="no-answer-row"></div>
+    </div>
+</div>
+
 <!-- ── RESULT ── -->
 <div id="result-screen" class="screen">
     <div class="card">
@@ -224,6 +266,7 @@
 <script src="js/ui.js"></script>
 <script src="js/games.js"></script>
 <script src="js/trivia.js"></script>
+<script src="js/agent.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

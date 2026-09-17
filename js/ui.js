@@ -109,7 +109,7 @@ const UI = (() => {
         }
 
         // best scores on cards
-        ['patterns','memory','oddone','sequence','math','trivia'].forEach(g => {
+        ['patterns','memory','oddone','sequence','math','trivia','numberorder'].forEach(g => {
             const best = Store.getBest(g);
             const el   = document.getElementById('best-' + g);
             if (!el) return;

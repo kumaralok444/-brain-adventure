@@ -25,7 +25,7 @@ const Store = (() => {
     }
 
     function _defaults() {
-        return { profile: { name: '', avatar: '🦄', xp: 0, createdAt: Date.now() }, bests: {}, history: [], streaks: { lastPlayedDate: null, count: 0 } };
+        return { profile: { name: '', avatar: '🦄', xp: 0, createdAt: Date.now() }, bests: {}, history: [], streaks: { lastPlayedDate: null, count: 0 }, noStats: {} };
     }
 
     // ── profile ──────────────────────────────────────
@@ -118,5 +118,26 @@ const Store = (() => {
         return { total, totalXP, avgPct, perfect, streak: d.streaks.count || 0 };
     }
 
-    return { getProfile, saveProfile, addXP, getXP, getBest, checkAndUpdateBest, addHistory, getHistory, getStats, updateStreak, getStreak };
+    // ── per-game subtype accuracy ─────────────────────
+    // agentStats: { [gameId]: { [subtype]: { correct, total } } }
+
+    function recordAnswer(gameId, subtype, correct) {
+        const d = _load();
+        if (!d.agentStats) d.agentStats = {};
+        if (!d.agentStats[gameId]) d.agentStats[gameId] = {};
+        if (!d.agentStats[gameId][subtype]) d.agentStats[gameId][subtype] = { correct: 0, total: 0 };
+        d.agentStats[gameId][subtype].total += 1;
+        if (correct) d.agentStats[gameId][subtype].correct += 1;
+        _save(d);
+    }
+
+    function getGameStats(gameId) {
+        return (_load().agentStats || {})[gameId] || {};
+    }
+
+    // kept for backward compat with any existing saved data
+    function recordNOAnswer(type, correct) { recordAnswer('numberorder', type, correct); }
+    function getNOStats() { return getGameStats('numberorder'); }
+
+    return { getProfile, saveProfile, addXP, getXP, getBest, checkAndUpdateBest, addHistory, getHistory, getStats, updateStreak, getStreak, recordAnswer, getGameStats, recordNOAnswer, getNOStats };
 })();
